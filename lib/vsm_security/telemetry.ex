@@ -72,13 +72,22 @@ defmodule VsmSecurity.Telemetry.Measurements do
     memory = :erlang.memory()
     :telemetry.execute([:vm, :memory], %{total: memory[:total]}, %{})
 
-    # Run queue lengths
-    run_queue = :erlang.statistics(:run_queue_lengths)
+    # Run queue lengths - returns tuple {TotalActive, TotalRunQueue} or just integer
+    run_queue_info = try do
+      case :erlang.statistics(:run_queue_lengths) do
+        {total, _} -> total
+        total when is_integer(total) -> total
+        _ -> 0
+      end
+    rescue
+      _ -> 0
+    end
+    
     :telemetry.execute(
       [:vm, :total_run_queue_lengths],
       %{
-        total: Enum.sum(run_queue[:run_queue_lengths]),
-        cpu: length(run_queue[:run_queue_lengths]),
+        total: run_queue_info,
+        cpu: run_queue_info,  # Same as total for now
         io: 0
       },
       %{}

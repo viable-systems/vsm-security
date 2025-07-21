@@ -270,12 +270,28 @@ defmodule VsmSecurity.Z3N.Network do
   
   @impl true
   def handle_info(:delayed_init, state) do
-    case configure() do
-      {:ok, _} -> Logger.info("Network security initialized")
-      error -> Logger.error("Failed to initialize network security: #{inspect(error)}")
+    # Initialize components directly without self-call
+    with {:ok, router} <- Router.start_link(@routing_table),
+         {:ok, zombie_detector} <- ZombieDetector.start_link(@zombie_thresholds),
+         {:ok, traffic_analyzer} <- TrafficAnalyzer.start_link() do
+      
+      new_state = %{state |
+        router: router,
+        zombie_detector: zombie_detector,
+        traffic_analyzer: traffic_analyzer
+      }
+      
+      # Start monitoring
+      schedule_health_check()
+      schedule_zombie_scan()
+      
+      Logger.info("Network security initialized")
+      {:noreply, new_state}
+    else
+      error ->
+        Logger.error("Failed to initialize network security: #{inspect(error)}")
+        {:noreply, state}
     end
-    
-    {:noreply, state}
   end
   
   @impl true
