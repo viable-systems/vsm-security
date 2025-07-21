@@ -44,9 +44,9 @@ defmodule VsmSecurity.MixProject do
       {:comeonin, "~> 5.3"},
       
       # Neural Network Libraries
-      {:nx, "~> 0.6"},
-      {:exla, "~> 0.6"},
-      {:axon, "~> 0.6"},
+      {:nx, "~> 0.10.0"},
+      {:exla, "~> 0.10.0", runtime: false},
+      {:axon, "~> 0.7.0"},
       
       # Bloom Filter
       {:bloomex, "~> 1.0"},

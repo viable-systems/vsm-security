@@ -716,8 +716,13 @@ defmodule VsmSecurity.Z3N.Neural do
     cache_key = :erlang.phash2(features)
     
     case :ets.lookup(cache_table, cache_key) do
-      [{^cache_key, result, expiry}] when expiry > System.system_time(:second) ->
-        {:hit, result}
+      [{^cache_key, result, expiry}] ->
+        now = System.system_time(:second)
+        if expiry > now do
+          {:hit, result}
+        else
+          :miss
+        end
       _ ->
         :miss
     end

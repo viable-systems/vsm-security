@@ -376,9 +376,16 @@ defmodule VsmSecurity.Z3N.Zones do
   defp increment_counter(key, window) do
     # Simple counter with TTL
     case :ets.lookup(:zone_metrics, key) do
-      [{^key, count, expiry}] when expiry > System.system_time(:second) ->
-        :ets.update_counter(:zone_metrics, key, {2, 1})
-        count + 1
+      [{^key, count, expiry}] ->
+        now = System.system_time(:second)
+        if expiry > now do
+          :ets.update_counter(:zone_metrics, key, {2, 1})
+          count + 1
+        else
+          # Expired, reset counter
+          :ets.insert(:zone_metrics, {key, 1, now + window})
+          1
+        end
       _ ->
         expiry = System.system_time(:second) + window
         :ets.insert(:zone_metrics, {key, 1, expiry})
