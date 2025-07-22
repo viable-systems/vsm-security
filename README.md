@@ -29,8 +29,12 @@ VSM Security implements a comprehensive security framework based on the Z3N prin
 
 ### Network Management
 - Encrypted peer-to-peer communication
-- Dynamic routing and topology management
+- Dynamic routing and topology management  
 - Health monitoring and self-healing
+- Zone-aware routing algorithms
+- Zombie detection mechanisms
+- Traffic analysis and filtering
+- Service mesh security
 
 ## Setup
 
@@ -56,6 +60,7 @@ See `config/config.exs` for configuration options including:
 - Neural network settings
 - Bloom filter presets
 - Network topology options
+- Z3N network enabled by default (set `z3n_network.enabled: true`)
 
 ## Usage
 
