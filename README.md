@@ -1,78 +1,59 @@
-# VSM Security
+# vsm_security
 
-Zero-Trust, Zero-Knowledge, Zero-Latency (Z3N) Security System for Viable Systems Model.
+Elixir security framework for the Viable Systems Model. Implements zone-based access control, bloom filter threat detection, and neural network threat prediction. Built on Phoenix with Guardian for JWT authentication.
 
-## Overview
+## Status
 
-VSM Security implements a comprehensive security framework based on the Z3N principles:
+- Version: 0.1.0
+- Phoenix application requiring PostgreSQL
+- Main module (`VsmSecurity`) is a stub (`hello/0` returns `:world`); actual functionality lives in submodules
+- Depends on Nx ~> 0.10, Axon ~> 0.7, and EXLA for neural network features
+- No Hex package configuration; not published
 
-- **Zero-Trust**: No implicit trust, all interactions are verified
-- **Zero-Knowledge**: Cryptographic proofs without revealing sensitive data
-- **Zero-Latency**: Real-time threat detection and response using neural networks and bloom filters
+## What it does
 
-## Key Components
+The library provides 4 subsystems:
 
-### Z3N Zones
-- Dynamic security perimeters with adaptive trust scoring
-- Neural-based threat detection
-- Zero-knowledge proof verification
+| Subsystem | Modules | Function |
+|-----------|---------|----------|
+| Z3N Zones | `Z3N.Zone`, `Z3N.Zones` | Dynamic security perimeters with adaptive trust scoring |
+| Z3N Neural | `Z3N.Neural` | Threat prediction using Nx/Axon neural networks |
+| Z3N Network | `Z3N.Network` | Encrypted peer-to-peer communication between zones |
+| Bloom Filters | `BloomFilters.ThreatFilter` | Probabilistic threat signature matching via bloomex |
 
-### Neural Security
-- Real-time threat prediction using Nx/Axon
-- Pattern recognition for anomaly detection
-- Adaptive learning from security events
+Additional modules:
 
-### Bloom Filters
-- Probabilistic threat signature matching
-- Memory-efficient threat database
-- Support for counting filters with removable items
+| Module | Purpose |
+|--------|---------|
+| `Auth.Guardian` | JWT token generation and validation |
+| `Auth.Pipeline` | Plug pipeline for authentication |
+| `Auth.Plugs.VerifyZone` | Zone-based request authorization |
+| `Patterns.ZeroTrust` | Zero-trust validation logic |
+| `Patterns.DefenseInDepth` | Layered defense patterns |
+| `Patterns.IncidentResponse` | Incident handling workflows |
+| `Patterns.ThreatIntelligence` | Threat intelligence aggregation |
+| `VsmIntegration` | Integration point with the broader VSM ecosystem |
+| `SecurityAlert` | Alert struct and handling |
 
-### Network Management
-- Encrypted peer-to-peer communication
-- Dynamic routing and topology management  
-- Health monitoring and self-healing
-- Zone-aware routing algorithms
-- Zombie detection mechanisms
-- Traffic analysis and filtering
-- Service mesh security
+## Dependencies
+
+Requires 20+ dependencies including Phoenix, Ecto/Postgrex, Guardian, Nx, EXLA, Axon, bloomex, JOSE, argon2, and cloak. See `mix.exs` for the full list.
 
 ## Setup
 
-1. Install dependencies:
 ```bash
 mix deps.get
-```
-
-2. Create and migrate database:
-```bash
-mix ecto.setup
-```
-
-3. Start the application:
-```bash
+mix ecto.setup   # requires running PostgreSQL
 mix phx.server
 ```
 
-## Configuration
-
-See `config/config.exs` for configuration options including:
-- Z3N zone parameters
-- Neural network settings
-- Bloom filter presets
-- Network topology options
-- Z3N network enabled by default (set `z3n_network.enabled: true`)
-
 ## Usage
 
-### Creating a Z3N Zone
-
 ```elixir
+# Create a security zone
 {:ok, zone} = VsmSecurity.Z3N.Zone.start_link(id: "primary_zone")
-```
 
-### Validating Access
-
-```elixir
+# Validate access
 request = %{
   user_id: "user123",
   action: "read",
@@ -82,37 +63,25 @@ request = %{
 }
 
 case VsmSecurity.Z3N.Zone.validate_access("primary_zone", request) do
-  {:allow, token} -> # Access granted
-  {:deny, reason} -> # Access denied
+  {:allow, token} -> # proceed
+  {:deny, reason} -> # reject
 end
-```
 
-### Threat Detection
-
-```elixir
-# Add threat signature
+# Bloom filter threat checking
 filter = VsmSecurity.BloomFilters.ThreatFilter.new(preset: :large)
 filter = VsmSecurity.BloomFilters.ThreatFilter.add(filter, threat_signature)
-
-# Check for threats
-is_threat = VsmSecurity.BloomFilters.ThreatFilter.contains?(filter, request_signature)
+VsmSecurity.BloomFilters.ThreatFilter.contains?(filter, request_signature)
 ```
 
-## Architecture
+## Limitations
 
-The system follows OTP principles with:
-- Supervised GenServer processes for zones
-- Dynamic supervisor for scaling
-- Registry for zone discovery
-- PubSub for event distribution
-
-## Testing
-
-Run tests with:
-```bash
-mix test
-```
+- Main module is a stub; no unified API surface
+- Requires PostgreSQL even for features that do not use persistence
+- EXLA dependency makes compilation slow and platform-dependent
+- Neural network models are not pre-trained; no training data or pipeline included
+- No integration tests that exercise the full authentication + zone + threat detection flow end-to-end
+- Z3N is a custom acronym (Zero-Trust, Zero-Knowledge, Zero-Latency) not an industry standard
 
 ## License
 
-Part of the Viable Systems Model project.
+MIT
